@@ -1,0 +1,13 @@
+{
+  "assets": [
+    {
+      "path": "public/assets/boteco-wall.webp",
+      "role": "textura de fundo",
+      "dimensions": "1024x683",
+      "source": "OpenAI image generation",
+      "license": "generated for this project",
+      "edits": "resized to 1024px and encoded as WebP quality 72 with sharp",
+      "status": "approved"
+    }
+  ]
+}

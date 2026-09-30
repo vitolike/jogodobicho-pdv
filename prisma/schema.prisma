@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Modalidade {
+  GRUPO
+  DEZENA
+  CENTENA
+  MILHAR
+  DUQUE
+  TERNO
+}
+
+enum StatusPule {
+  PENDENTE
+  PREMIADA
+  PERDIDA
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Pule {
+  id            String     @id @default(cuid())
+  codigo        String     @unique
+  modalidade    Modalidade
+  numeros       String[]
+  valorPago     Decimal    @db.Decimal(12, 2)
+  valorRecebido Decimal    @db.Decimal(12, 2)
+  troco         Decimal    @db.Decimal(12, 2)
+  multiplicador Decimal    @db.Decimal(10, 2)
+  valorPremio   Decimal    @default(0) @db.Decimal(12, 2)
+  dataHora      DateTime   @default(now())
+  status        StatusPule @default(PENDENTE)
+  sorteioId     String?
+  sorteio       Sorteio?   @relation(fields: [sorteioId], references: [id])
+
+  @@index([dataHora])
+  @@index([status])
+}
+
+model Sorteio {
+  id        String   @id @default(cuid())
+  data      DateTime @unique @db.Date
+  primeiro  Int
+  segundo   Int
+  terceiro  Int
+  quarto    Int
+  quinto    Int
+  createdAt DateTime @default(now())
+  pules     Pule[]
+}

@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Banca do Bairro
 
-## Getting Started
+PDV touch para registrar pules em dinheiro, emitir comprovantes e fechar o caixa após o sorteio.
 
-First, run the development server:
+## Rodar localmente
 
 ```bash
+npm install
+npx prisma generate
+npm run db:push
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra `http://localhost:3000`. O painel fica em `/admin` e usa `ADMIN_EMAIL` e `ADMIN_PASSWORD`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variáveis de ambiente
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copie `.env.example` para `.env` e configure:
 
-## Learn More
+- `DATABASE_URL`: conexão Neon com `-pooler`, usada pela aplicação.
+- `DIRECT_URL`: conexão Neon direta, usada pelo Prisma CLI.
+- `JWT_SECRET`: segredo aleatório com pelo menos 32 caracteres.
+- `ADMIN_EMAIL` e `ADMIN_PASSWORD`: credenciais criadas por `npm run db:seed`.
+- `APP_URL`: origem exata permitida pelo CORS, por exemplo `https://banca.exemplo.com`.
 
-To learn more about Next.js, take a look at the following resources:
+## Docker
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+docker build -t banca-do-bairro .
+docker run -d --name banca -p 80:80 --env-file .env banca-do-bairro
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+A aplicação sobe em `http://localhost`. O `.env` precisa estar sem aspas em volta dos valores: o `--env-file` do Docker não remove aspas, e uma `DATABASE_URL` entre aspas quebra o Prisma na inicialização. Antes do primeiro start, rode `npm run db:deploy && npm run db:seed` a partir do host.
 
-## Deploy on Vercel
+## Deploy na Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Envie o repositório para o GitHub e importe-o na Vercel.
+2. Cadastre as seis variáveis acima em Project Settings > Environment Variables.
+3. Use `npx prisma generate && next build` como Build Command.
+4. Antes do primeiro deploy, rode `npm run db:deploy && npm run db:seed` em um ambiente seguro com as variáveis de produção.
+5. Troque `APP_URL` pela URL final e faça o deploy novamente.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Verificação
+
+```bash
+npm test
+npm run lint
+npm run build
+npm run test:browser # requer Edge instalado e npm run dev ativo
+```
+
+Os multiplicadores ficam em `src/lib/domain.ts`. Ajuste-os antes de operar caso a banca use outra tabela.
