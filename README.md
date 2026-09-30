@@ -37,7 +37,7 @@ A aplicação sobe em `http://localhost`. O `.env` precisa estar sem aspas em vo
 
 1. Envie o repositório para o GitHub e importe-o na Vercel.
 2. Cadastre as seis variáveis acima em Project Settings > Environment Variables.
-3. Use `npx prisma generate && next build` como Build Command.
+3. Deixe o Build Command como `npm run build`. Ele já roda `prisma generate` antes do `next build`, o que é obrigatório: a Vercel reaproveita `node_modules` do cache entre builds e, sem esse passo, o Prisma Client fica desatualizado e o build quebra em `/api/admin/resumo`.
 4. Antes do primeiro deploy, rode `npm run db:deploy && npm run db:seed` em um ambiente seguro com as variáveis de produção.
 5. Troque `APP_URL` pela URL final e faça o deploy novamente.
 
@@ -47,7 +47,8 @@ A aplicação sobe em `http://localhost`. O `.env` precisa estar sem aspas em vo
 npm test
 npm run lint
 npm run build
-npm run test:browser # requer Edge instalado e npm run dev ativo
+npm run test:browser # requer Edge instalado e a aplicação no ar
+node scripts/fit-check.mjs # confirma que o PDV cabe sem rolagem no celular
 ```
 
 Os multiplicadores ficam em `src/lib/domain.ts`. Ajuste-os antes de operar caso a banca use outra tabela.
